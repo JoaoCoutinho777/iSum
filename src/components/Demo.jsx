@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { copy, linkIcon, loader, tick } from '../assets';
 import { useLazyGetSummaryQuery } from "../services/article";
 
-function Demo() {
+const Demo = () => {
 
   const [article, setArticle] = useState({
     url: '',
@@ -14,35 +14,34 @@ function Demo() {
   const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery();
 
   useEffect(() => {
-    const articlesFromLocalStorage = JSON.parse(localStorage.getItem('articles'))
+    const articlesFromLocalStorage = JSON.parse(localStorage.getItem('articles'));
 
     if (articlesFromLocalStorage) {
-      setAllArticles(articlesFromLocalStorage)
+      setAllArticles(articlesFromLocalStorage);
     }
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const { data } = await getSummary({ articleUrl: article.url });
 
     if(data?.summary) {
-      const newArticle = { ...article, summary: data.summary};
+      const newArticle = { ...article, summary: data.summary };
       const updatedAllArticles = [newArticle, ...allArticles];
 
       setArticle(newArticle);
       setAllArticles(updatedAllArticles);
-
       localStorage.setItem('articles', JSON.stringify(updatedAllArticles));
     }
-    alert('Submited');
-  }
+  };
 
   
   return (
     <section className="mt-16 w-full max-w-xl">
       <div className="flex flex-col w-full gap-2">
         <form className="relative flex justify-center items-center"
-          onSubmit={() => {handleSubmit}}>
+          onSubmit={handleSubmit}>
             <img 
               src={linkIcon} 
               alt="link_icon" 
@@ -63,7 +62,20 @@ function Demo() {
             </button>
         </form>
 
-
+      <div className="flex flex-col gap-1 max-h-60 overflow-y-auto">
+        {allArticles.map((item, index) => (
+          <div key={`link-${index}`}
+            onClick={() => setArticle(item)}
+            className="link-card">
+              <div className="copy_btn">
+                <img src={copy} alt="copy_icon" className="w-[40%] h-[40%] object-contain"/>
+              </div>
+              <p className="flex-1 font-satoshi text-blue-700 font-medium text-sm truncate">
+                {item.url}
+              </p>
+          </div>
+        ))}
+      </div>
       </div>
     </section>
   )
